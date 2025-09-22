@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBTI Bingo Game</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #2CD8D5, #C5B1FF);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .mbti-header {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .homepage-btn {
+            background: #FF9E6D;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+            box-shadow: 0 3px 6px rgba(255, 158, 109, 0.3);
+            height: 32px;
+        }
+
+        .homepage-btn:hover {
+            background: #FF8A4D;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(255, 138, 77, 0.4);
+        }
+
+        .mbti-selector {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            gap: 3px;
+            width: 100%;
+        }
+
+        .mbti-option {
+            background: #6B48FF;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: 26px;
+        }
+
+        .mbti-option:hover {
+            background: #5538D0;
+            transform: translateY(-2px);
+        }
+
+        .mbti-option.active {
+            background: #FF6B8B;
+            box-shadow: 0 2px 6px rgba(255, 107, 139, 0.4);
+        }
+
+        .main-content {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .bingo-card {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            flex-shrink: 0;
+        }
+
+        .bingo-image {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            display: block;
+        }
+
+        .bingo-grid {
+            position: absolute;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            pointer-events: none;
+        }
+
+        .grid-cell {
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            z-index: 10;
+            pointer-events: auto;
+        }
+
+        .grid-cell:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .grid-cell.selected {
+            background-color: rgba(107, 72, 255, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .grid-cell.selected::after {
+            content: "✓";
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .right-sidebar {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 350px;
+            gap: 20px;
+        }
+
+        .leaderboard {
+            background: #F7F9FC;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .leaderboard h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #2A2D43;
+            font-size: 1.5rem;
+        }
+
+        .score-list {
+            flex-grow: 1;
+            margin-bottom: 15px;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #E8ECF1;
+            font-size: 1rem;
+        }
+
+        .score-item:last-child {
+            border-bottom: none;
+        }
+
+        .sidebar-reset-btn {
+            background: #FF6B8B;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .sidebar-reset-btn:hover {
+            background: #FF5272;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 82, 114, 0.4);
+        }
+
+        @media (max-width: 1000px) {
+            .main-content {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .right-sidebar {
+                max-width: 600px;
+                width: 100%;
+                flex-direction: row;
+            }
+
+            .leaderboard {
+                flex: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .mbti-header {
+                flex-direction: row;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .homepage-btn {
+                margin-bottom: 0;
+                font-size: 0.85rem;
+                padding: 5px 10px;
+                height: 28px;
+            }
+
+            .mbti-option {
+                padding: 3px 6px;
+                font-size: 0.7rem;
+                height: 24px;
+                border-radius: 8px;
+            }
+
+            .right-sidebar {
+                flex-direction: column;
+            }
+
+            .score-item {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .mbti-header {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .homepage-btn {
+                margin-bottom: 5px;
+            }
+
+            .mbti-selector {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="game-area">
+            <div class="mbti-header">
+                <button class="homepage-btn">16型人格</button>
+                <div class="mbti-selector" id="mbti-selector">
+                    <!-- MBTI options will be generated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="bingo-card">
+                    <img src="https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c000-ce/oACIeQfxwA7dEOvh9FflXoDE2AU0iEA1uAotAi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_SEARCH&sc=image&se=false&x-expires=1759741200&x-signature=FzWdkZDZcmd7SA7bFumAfBqs394%3D"
+                        alt="MBTI Bingo Card" class="bingo-image" id="bingo-image">
+                    <div class="bingo-grid" id="bingo-grid">
+                        <!-- Grid cells will be generated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="right-sidebar">
+                    <div class="leaderboard">
+                        <h2>Scores</h2>
+                        <div class="score-list" id="leaderboard-scores">
+                            <!-- Leaderboard items will be generated by JavaScript -->
+                        </div>
+                        <button class="sidebar-reset-btn" id="sidebar-reset-btn">Reset All Games</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // MBTI types
+        const mbtiTypes = [
+            "ENFJ", "ENFP", "ENTJ", "ENTP",
+            "ESFJ", "ESFP", "ESTJ", "ESTP",
+            "INFJ", "INFP", "INTJ", "INTP",
+            "ISFJ", "ISFP", "ISTJ", "ISTP"
+        ];
+
+        // Initialize game state
+        let gameState = {};
+        let currentMBTI = "ENFJ";
+
+        // Initialize game state for all MBTI types
+        mbtiTypes.forEach(mbti => {
+            gameState[mbti] = {
+                selected: Array(5).fill().map(() => Array(5).fill(false)), // 5X5 grid
+                score: 0,
+                selectedCount: 0 // NEW: Track number of selected grids
+            };
+        });
+
+        // DOM elements
+        const bingoImage = document.getElementById('bingo-image');
+        const bingoGrid = document.getElementById('bingo-grid');
+        const leaderboardScores = document.getElementById('leaderboard-scores');
+        const sidebarResetBtn = document.getElementById('sidebar-reset-btn');
+        const mbtiSelector = document.getElementById('mbti-selector');
+        const homepageBtn = document.querySelector('.homepage-btn');
+
+        // Generate MBTI selector buttons
+        function generateMbtiSelector() {
+            mbtiSelector.innerHTML = '';
+            mbtiTypes.forEach(mbti => {
+                const button = document.createElement('button');
+                button.className = 'mbti-option';
+                if (mbti === currentMBTI) {
+                    button.classList.add('active');
+                }
+                button.textContent = mbti;
+                button.dataset.mbti = mbti;
+                button.addEventListener('click', () => changeMBTI(mbti));
+                mbtiSelector.appendChild(button);
+            });
+        }
+
+        // Calculate grid position based on image dimensions
+        function calculateGridPosition() {
+            const img = document.getElementById('bingo-image');
+            const grid = document.getElementById('bingo-grid');
+
+            // Wait for image to load
+            if (img.complete) {
+                positionGrid(img, grid);
+            } else {
+                img.addEventListener('load', function () {
+                    positionGrid(img, grid);
+                });
+            }
+        }
+
+        // Position the grid based on image dimensions
+        function positionGrid(img, grid) {
+            const imgWidth = img.offsetWidth;
+            const imgHeight = img.offsetHeight;
+
+            // Define grid area as percentages of the image
+            // These values should match where the grid is on your actual image
+            const gridTopPercent = 0.29;    // 29% from top
+            const gridLeftPercent = 0.02;   // 2% from left
+            const gridWidthPercent = 0.96;  // 96% width
+            const gridHeightPercent = 0.70; // 70% height
+
+            // Calculate pixel values
+            const gridTop = imgHeight * gridTopPercent;
+            const gridLeft = imgWidth * gridLeftPercent;
+            const gridWidth = imgWidth * gridWidthPercent;
+            const gridHeight = imgHeight * gridHeightPercent;
+
+            // Apply calculated dimensions
+            grid.style.top = `${gridTop}px`;
+            grid.style.left = `${gridLeft}px`;
+            grid.style.width = `${gridWidth}px`;
+            grid.style.height = `${gridHeight}px`;
+
+            // Enable interaction
+            grid.style.pointerEvents = 'auto';
+        }
+
+        // Generate grid cells (5x5 grid)
+        function generateGrid() {
+            bingoGrid.innerHTML = '';
+            for (let row = 0; row < 5; row++) {
+                for (let col = 0; col < 5; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'grid-cell';
+                    if (gameState[currentMBTI].selected[row][col]) {
+                        cell.classList.add('selected');
+                    }
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    cell.addEventListener('click', handleCellClick);
+                    bingoGrid.appendChild(cell);
+                }
+            }
+
+            // Calculate grid position after generating cells
+            calculateGridPosition();
+        }
+
+        // Handle cell click
+        function handleCellClick(e) {
+            const row = parseInt(e.target.dataset.row);
+            const col = parseInt(e.target.dataset.col);
+
+            // Toggle selection state
+            gameState[currentMBTI].selected[row][col] = !gameState[currentMBTI].selected[row][col];
+
+            // Update UI
+            e.target.classList.toggle('selected');
+
+            // Calculate score
+            calculateScore();
+
+            // Update leaderboard
+            updateLeaderboard();
+        }
+
+        // Calculate score for current MBTI (5x5 grid)
+        function calculateScore() {
+            const selected = gameState[currentMBTI].selected;
+            let score = 0;
+            let selectedCount = 0; // NEW: Count selected grids
+
+            // Check rows (5 rows)
+            for (let row = 0; row < 5; row++) {
+                if (selected[row].every(cell => cell)) {
+                    score++;
+                }
+            }
+
+            // Check columns (5 columns)
+            for (let col = 0; col < 5; col++) {
+                if (selected.every(row => row[col])) {
+                    score++;
+                }
+            }
+
+            // Check diagonals
+            if (selected[0][0] && selected[1][1] && selected[2][2] && selected[3][3] && selected[4][4]) {
+                score++;
+            }
+            if (selected[0][4] && selected[1][3] && selected[2][2] && selected[3][1] && selected[4][0]) {
+                score++;
+            }
+
+            // NEW: Count total selected grids
+            for (let row = 0; row < 5; row++) {
+                for (let col = 0; col < 5; col++) {
+                    if (selected[row][col]) {
+                        selectedCount++;
+                    }
+                }
+            }
+
+            // Update score and selected count
+            gameState[currentMBTI].score = score;
+            gameState[currentMBTI].selectedCount = selectedCount;
+        }
+
+        // Update leaderboard
+        function updateLeaderboard() {
+            leaderboardScores.innerHTML = '';
+
+            // Create sorted list of scores
+            const sortedScores = Object.entries(gameState)
+                .map(([mbti, data]) => ({ mbti, score: data.score, selectedCount: data.selectedCount }))
+                .sort((a, b) => {
+                    // First sort by score (descending)
+                    if (b.score !== a.score) {
+                        return b.score - a.score;
+                    }
+                    // If scores are equal, sort by selectedCount (descending)
+                    return b.selectedCount - a.selectedCount;
+                });
+
+            // Add scores to leaderboard
+            sortedScores.forEach((item, index) => {
+                const scoreItem = document.createElement('div');
+                scoreItem.className = 'score-item';
+
+                const emoji = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : "";
+
+                // NEW: Include selected count in display
+                scoreItem.innerHTML = `
+                    <span>${emoji} ${item.mbti}</span>
+                    <span>${item.score} points (${item.selectedCount} grids)</span>
+                `;
+
+                leaderboardScores.appendChild(scoreItem);
+            });
+        }
+
+        // Change MBTI type
+        function changeMBTI(mbti) {
+            currentMBTI = mbti;
+
+            // Update active button
+            document.querySelectorAll('.mbti-option').forEach(btn => {
+                if (btn.dataset.mbti === mbti) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Update image - REPLACE WITH YOUR OWN IMAGES
+            // Create an "images" folder and add your MBTI images named like: enfj.jpg, enfp.jpg, etc.
+            bingoImage.src = `images/${mbti.toLowerCase()}.jpg`;
+            bingoImage.alt = `${mbti} Bingo Card`;
+
+            // Disable interaction until new image loads
+            bingoGrid.style.pointerEvents = 'none';
+
+            // Wait for image to load before regenerating grid
+            bingoImage.onload = function () {
+                // Regenerate grid
+                generateGrid();
+            };
+
+            // If image is already cached, manually trigger load
+            if (bingoImage.complete) {
+                generateGrid();
+            }
+
+            // Handle image loading errors
+            bingoImage.onerror = function () {
+                // MODIFIED: Fallback to new placeholder with cache prevention
+                bingoImage.src = "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c000-ce/oACIeQfxwA7dEOvh9FflXoDE2AU0iEA1uAotAi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_SEARCH&sc=image&se=false&x-expires=1759741200&x-signature=FzWdkZDZcmd7SA7bFumAfBqs394%3D&t=" + new Date().getTime();
+                generateGrid();
+            };
+        }
+
+        // Reset all games
+        function resetGames() {
+            mbtiTypes.forEach(mbti => {
+                gameState[mbti] = {
+                    selected: Array(5).fill().map(() => Array(5).fill(false)), // 5x5 grid
+                    score: 0,
+                    selectedCount: 0 // NEW: Reset selected count
+                };
+            });
+
+            // Reset UI
+            generateGrid();
+            updateLeaderboard();
+        }
+
+        // Initialize the game
+        function initGame() {
+            generateMbtiSelector();
+            generateGrid();
+            updateLeaderboard();
+
+            // Ensure image loads properly on page load
+            if (bingoImage.complete) {
+                calculateGridPosition();
+            } else {
+                bingoImage.addEventListener('load', calculateGridPosition);
+            }
+
+            // MODIFIED: Add error handler for initial image load
+            bingoImage.onerror = function () {
+                const baseUrl = "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c000-ce/oACIeQfxwA7dEOvh9FflXoDE2AU0iEA1uAotAi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_SEARCH&sc=image&se=false&x-expires=1759741200&x-signature=FzWdkZDZcmd7SA7bFumAfBqs394%3D";
+
+                bingoImage.src = baseUrl + "&t=" + new Date().getTime();
+
+                console.log("Image src set to:", bingoImage.src);
+                generateGrid();
+            };
+        }
+
+        // Initialize the game when page loads
+        window.addEventListener('DOMContentLoaded', initGame);
+
+        // Set up event listeners
+        sidebarResetBtn.addEventListener('click', resetGames);
+
+        // Homepage button functionality
+        homepageBtn.addEventListener('click', function () {
+            // You can customize this to navigate to a homepage or reset the view
+            window.location.href = "https://zeroo205.github.io/mbti/mbti.html";
+        });
+
+        // Make grid responsive to window resize
+        window.addEventListener('resize', function () {
+            calculateGridPosition();
+        });
+    </script>
+</body>
+
+</html>
